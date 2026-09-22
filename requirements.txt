@@ -1,0 +1,29 @@
+# Core Data Analysis
+pandas==2.0.3
+numpy==1.24.3
+
+# Database
+sqlite3  # Built-in with Python
+
+# Visualization
+matplotlib==3.7.2
+seaborn==0.12.2
+plotly==5.15.0
+
+# Data Generation
+faker==19.2.0
+python-dateutil==2.8.2
+
+# Excel Support
+openpyxl==3.1.2
+xlsxwriter==3.1.2
+
+# Utilities
+tqdm==4.65.0
+python-dotenv==1.0.0
+
+# SQL Query Formatting
+sqlparse==0.4.4
+
+# Data Validation
+pandera==0.15.2
