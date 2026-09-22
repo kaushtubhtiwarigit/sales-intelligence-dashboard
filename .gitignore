@@ -6,6 +6,7 @@ __pycache__/
 # Database
 *.db
 *.sqlite
+sales_data.db
 
 # Data files
 data/raw/*.csv
@@ -28,3 +29,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Test
+.pytest_cache/
