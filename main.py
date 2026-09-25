@@ -35,7 +35,7 @@ def main():
     print("="*80)
     analyzer = SQLAnalyzer()
     analyzer.create_database()
-    analyzer.run_analytics()
+    results, successful, failed = analyzer.run_analytics(limit=None)  # Run ALL queries
     analyzer.close()
     
     # Final Summary
@@ -50,7 +50,9 @@ def main():
     print(f"  - 5 regions, 20 states")
     
     print("\n✓ Created SQLite database with all data")
-    print("✓ Executed 20+ business intelligence SQL queries")
+    print(f"✓ Executed {successful}/{successful + failed} business intelligence SQL queries")
+    if failed > 0:
+        print(f"  ⚠️  {failed} queries failed - check output above for details")
     
     print("\n" + "="*80)
     print("KEY DELIVERABLES:")

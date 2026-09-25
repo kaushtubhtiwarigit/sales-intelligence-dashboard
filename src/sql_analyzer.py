@@ -55,8 +55,13 @@ class SQLAnalyzer:
             print(f"Error: {e}")
             return None
     
-    def run_analytics(self, sql_file='sql/analytics_queries.sql'):
-        """Run all analytics queries"""
+    def run_analytics(self, sql_file='sql/analytics_queries.sql', limit=None):
+        """Run all analytics queries
+        
+        Args:
+            sql_file: Path to SQL file
+            limit: Optional limit on number of queries (None = all queries)
+        """
         print("\n" + "="*80)
         print("RUNNING BUSINESS INTELLIGENCE QUERIES")
         print("="*80)
@@ -65,13 +70,34 @@ class SQLAnalyzer:
         with open(sql_file, 'r') as f:
             sql_content = f.read()
         
-        # Split by queries (simple split on double newline)
+        # Split by queries (split on semicolon, filter empty and comment-only blocks)
         queries = [q.strip() for q in sql_content.split(';') if q.strip() and not q.strip().startswith('--')]
         
-        print(f"Found {len(queries)} queries to execute\n")
+        # Filter out queries that are only comments
+        valid_queries = []
+        for q in queries:
+            # Check if query has actual SQL (not just comments)
+            non_comment_lines = [line for line in q.split('\n') 
+                               if line.strip() and not line.strip().startswith('--')]
+            if non_comment_lines:
+                valid_queries.append(q)
+        
+        queries = valid_queries
+        total_queries = len(queries)
+        queries_to_run = queries if limit is None else queries[:limit]
+        
+        print(f"Found {total_queries} valid queries")
+        if limit:
+            print(f"Running first {limit} queries (use limit=None for all)")
+        else:
+            print(f"Running all {total_queries} queries")
+        print()
         
         results = {}
-        for idx, query in enumerate(queries[:10], 1):  # Run first 10 for demo
+        successful = 0
+        failed = 0
+        
+        for idx, query in enumerate(queries_to_run, 1):
             # Extract description from comments
             lines = query.split('\n')
             description = f"Query {idx}"
@@ -81,12 +107,27 @@ class SQLAnalyzer:
                     break
             
             print(f"\n{'='*80}")
-            print(f"Query {idx}: {description}")
+            print(f"Query {idx}/{len(queries_to_run)}: {description}")
             print('='*80)
+            
             result = self.execute_query(query)
-            results[f"query_{idx}"] = result
+            if result is not None:
+                results[f"query_{idx}"] = result
+                successful += 1
+            else:
+                failed += 1
         
-        return results
+        # Summary
+        print("\n" + "="*80)
+        print("QUERY EXECUTION SUMMARY")
+        print("="*80)
+        print(f"Total queries in file: {total_queries}")
+        print(f"Queries executed: {len(queries_to_run)}")
+        print(f"Successful: {successful}")
+        print(f"Failed: {failed}")
+        print("="*80)
+        
+        return results, successful, failed
     
     def close(self):
         """Close database connection"""
@@ -101,14 +142,15 @@ def main():
     # Create database
     analyzer.create_database()
     
-    # Run analytics
-    analyzer.run_analytics()
+    # Run ALL analytics queries
+    results, successful, failed = analyzer.run_analytics(limit=None)  # None = all queries
     
     # Close
     analyzer.close()
     
     print("\n" + "="*80)
     print("SQL ANALYSIS COMPLETE!")
+    print(f"Successfully executed {successful}/{successful + failed} queries")
     print("="*80)
 
 

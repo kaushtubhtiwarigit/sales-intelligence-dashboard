@@ -125,7 +125,8 @@ LIMIT 20;
 WITH RFM AS (
     SELECT 
         CustomerID,
-        julianday('now') - julianday(MAX(OrderDate)) as Recency,
+        -- Use dataset's max date as reference instead of current date
+        CAST(julianday((SELECT MAX(OrderDate) FROM orders WHERE OrderStatus = 'Completed')) - julianday(MAX(OrderDate)) AS INTEGER) as Recency,
         COUNT(DISTINCT OrderID) as Frequency,
         SUM(TotalAmount) as Monetary
     FROM orders
